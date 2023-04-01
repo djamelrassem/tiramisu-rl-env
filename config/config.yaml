@@ -14,7 +14,7 @@ dataset:
 
 ray:
     results: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results"
-    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/All-actions-pseudo-beam-search-small-networks/PPO_TiramisuRlEnv_1133f_00000_0_2023-03-30_04-59-06/checkpoint_000160"
+    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/Separated-NN-beam-search-entropy0_1-batch1024/PPO_TiramisuRlEnv_fa5ba_00000_0_2023-04-01_07-47-53/checkpoint_000390"
 
 experiment:
     name: "Separated-NN-beam-search-entropy0_1-batch1024"
