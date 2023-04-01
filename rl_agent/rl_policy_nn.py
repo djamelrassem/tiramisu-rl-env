@@ -7,16 +7,17 @@ torch, nn = try_import_torch()
 
 class PolicyNN(TorchModelV2, nn.Module):
     def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name):
+                 name,**kwargs):
         
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
-                              model_config, name)
+                              model_config, name,**kwargs)
         nn.Module.__init__(self)
 
         self.share_weights = model_config["vf_share_layers"]
 
         dropout = model_config["custom_model_config"]["dropout_rate"]
-        input_size = 180
+        
+        input_size = obs_space.original_space["embedding"].shape[0]
 
         # Policy network
         policy_hidden_sizes = model_config["custom_model_config"]["policy_hidden_layers"]

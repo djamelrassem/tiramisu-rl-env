@@ -124,12 +124,12 @@ class Schedule:
             # Interchange
             self.repr.action_mask[19:26] = 1
 
-            if (isinstance(action,Tiling)) : 
-                # Parallelization
-                self.repr.action_mask[0:2] = 1
+            # if (isinstance(action,Tiling)) : 
+            #     # Parallelization
+            #     self.repr.action_mask[0:2] = 1
 
-            elif (isinstance(action,Unrolling)):
-                # Parallelization
-                self.repr.action_mask[0:2] = 1
-                # Tiling
-                self.repr.action_mask[12:19] = 1
+            # elif (isinstance(action,Unrolling)):
+            #     # Parallelization
+            #     self.repr.action_mask[0:2] = 1
+            #     # Tiling
+            #     self.repr.action_mask[12:19] = 1

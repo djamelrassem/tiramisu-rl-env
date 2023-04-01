@@ -35,6 +35,8 @@ class Experiment:
     timesteps_total: int = 1000000
     episode_reward_mean: float = 2
     legality_speedup: float =  1.0
+    entropy_coeff:float = 0.0
+    train_batch_size: int = 512
 
 @dataclass
 class PolicyNetwork:

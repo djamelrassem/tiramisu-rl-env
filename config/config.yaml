@@ -17,15 +17,18 @@ ray:
     restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/All-actions-pseudo-beam-search-small-networks/PPO_TiramisuRlEnv_1133f_00000_0_2023-03-30_04-59-06/checkpoint_000160"
 
 experiment:
-    name: "test"
+    name: "Separated-NN-beam-search-entropy0_1-batch1024"
     checkpoint_frequency: 10
-    checkpoint_num_to_keep: 10
-    # The following 3 values are the values to stop the experiment if any of them is reached 
-    training_iteration: 500
-    timesteps_total: 1000000
+    checkpoint_num_to_keep: 20
+    # Stop parameters : The following 3 values are the values to stop the experiment if any of them is reached 
+    training_iteration: 1000
+    timesteps_total: 1500000
     episode_reward_mean: 2
     # Use this value to punish or tolerate illegal actions from being taken
-    legality_speedup: 0.9
+    legality_speedup: 1.0
+    entropy_coeff: 0.1
+    # Training parameters
+    train_batch_size: 1024
 
 policy_network:
     # Set this to True if you want to use shared weights between policy and value function
@@ -39,4 +42,4 @@ policy_network:
         - 512 
         - 64
     dropout_rate: 0.2
-    lr: 0.001
+    lr: 0.00005

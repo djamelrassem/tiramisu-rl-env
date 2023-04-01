@@ -19,7 +19,7 @@ class TiramisuRlEnv(gym.Env):
         self.action_space = spaces.Discrete(27)
         self.observation_space = spaces.Dict({
             "embedding":
-            spaces.Box(-np.inf, np.inf, shape=(180, )),
+            spaces.Box(-np.inf, np.inf, shape=(181, )),
             "actions_mask":
             spaces.Box(0, 1, shape=(27, ))
         })
@@ -41,7 +41,7 @@ class TiramisuRlEnv(gym.Env):
             
         self.state = {
             # Converting Tensor to numpy array
-            "embedding": embedded_tensor.numpy(),
+            "embedding": self.preprocess_embeddings(embeddings=embedded_tensor),
             "actions_mask": actions_mask
         }
         self.previous_speedup = self.reward = 1
@@ -57,7 +57,7 @@ class TiramisuRlEnv(gym.Env):
         instant_speedup = 1
         if (legality and not self.done):
             self.state = {
-                "embedding": embedded_tensor.numpy(),
+                "embedding": self.preprocess_embeddings(embeddings=embedded_tensor,action=action),
                 "actions_mask": actions_mask
             }
             # If the action is legal , we divide the speedup of new sequence {A_0 .. A_i+1} by the speedup of 
@@ -141,3 +141,8 @@ class TiramisuRlEnv(gym.Env):
             )
 
         return speedup, embedded_tensor, legality, actions_mask
+
+    def preprocess_embeddings(self,embeddings,action = -1):
+        embeddings = embeddings.numpy()
+        embeddings = np.append(embeddings,action)
+        return embeddings
