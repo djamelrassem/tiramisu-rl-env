@@ -44,6 +44,12 @@ class SchedulerService:
             self.schedule_object)
         return ConvertService.get_tree_representation(*repr_tensors,
                                                       self.schedule_object)
+    def get_current_speedup(self):
+        repr_tensors = ConvertService.get_schedule_representation(
+            self.schedule_object)
+        speedup, embedding_tensor = self.prediction_service.get_speedup(
+            *repr_tensors, self.schedule_object)
+        return speedup , self.schedule_object.schedule_str
 
     def get_schedule_dict(self):
         """
@@ -97,8 +103,8 @@ class SchedulerService:
                     self.schedule_object)
                 speedup, embedding_tensor = self.prediction_service.get_speedup(
                     *repr_tensors, self.schedule_object)
-                print(self.schedule_object.schedule_str)
-                print("Speedup:", speedup)
+                # print(self.schedule_object.schedule_str)
+                # print("Speedup:", speedup)
             except KeyError as e:
                 logging.error(f"This loop level: {e} doesn't exist")
                 legality_check = False

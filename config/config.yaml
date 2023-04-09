@@ -5,7 +5,7 @@ tiramisu:
 
 dataset:
     path: '/scratch/dl5133/Dev/RL-Agent/rl_autoscheduler/utils/program_generator/Dataset_multi/'
-    offline : '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets/merged_valid_programs.pkl'
+    offline : '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets/merged_valid_programs_40k.pkl'
     save_path: '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets'
     # When doing evaluation on the benchmark set the value to True
     is_benchmark: False
@@ -14,19 +14,19 @@ dataset:
 
 ray:
     results: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results"
-    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/Separated-NN-beam-search-entropy0_1-batch1024/PPO_TiramisuRlEnv_fa5ba_00000_0_2023-04-01_07-47-53/checkpoint_000390"
+    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/Separated-NN-Strict-beam-search-entropy_decay-batch1024-8previous-actions/PPO_TiramisuRlEnv_aef05_00000_0_2023-04-07_16-28-22/checkpoint_000995"
 
 experiment:
-    name: "Separated-NN-beam-search-entropy0_1-batch1024"
+    name: "Separated-NN-Strict-beam-search-entropy_0-batch1024-8previous-actions-loopextents"
     checkpoint_frequency: 10
     checkpoint_num_to_keep: 20
     # Stop parameters : The following 3 values are the values to stop the experiment if any of them is reached 
     training_iteration: 1000
-    timesteps_total: 1500000
+    timesteps_total: 2000000
     episode_reward_mean: 2
     # Use this value to punish or tolerate illegal actions from being taken
     legality_speedup: 1.0
-    entropy_coeff: 0.1
+    entropy_coeff: 0.0
     # Training parameters
     train_batch_size: 1024
 

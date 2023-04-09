@@ -62,6 +62,7 @@ if __name__ == "__main__":
     dataset_actor = DatasetActor.remote(
         dataset_path=Config.config.dataset.offline,
         use_dataset=True,
+        shuffle=True,
         path_to_save_dataset=Config.config.dataset.save_path,
         dataset_format="PICKLE",
     )
@@ -76,7 +77,7 @@ if __name__ == "__main__":
             MultiCallbacks([
                 # CustomMetricCallback
             ])).rollouts(
-                num_rollout_workers=args.num_workers - 1,
+                num_rollout_workers=args.num_workers - 10,
                 batch_mode="complete_episodes",
                 enable_connectors=False).training(
                     lr=Config.config.policy_network.lr,
@@ -96,7 +97,8 @@ if __name__ == "__main__":
                     train_batch_size=Config.config.experiment.train_batch_size
                 ).resources(num_gpus=0).debugging(log_level="WARN")
 
-    config.entropy_coeff = Config.config.experiment.entropy_coeff
+    config.entropy_coeff_schedule = Config.config.experiment.entropy_coeff
+    # [(0,1), (10_000, 0.1),(100_000, 0.01),(500_000, 0.001),(1_000_000, 0.0001),(1_500_000, 0.0)]
 
     # Setting the stop conditions
     stop = {

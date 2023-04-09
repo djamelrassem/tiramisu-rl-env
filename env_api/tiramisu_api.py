@@ -94,20 +94,24 @@ class TiramisuEnvAPI:
                 comps_tensor, loops_tensor,
                 self.scheduler_service.schedule_object)
 
-        return embedding_tensor, self.scheduler_service.schedule_object.repr.action_mask
+        return self.extend_embeddings(
+            (embedding_tensor,
+             self.scheduler_service.schedule_object.repr.action_mask))
 
     # TODO : for all these actions we need to generalize over computations and not over shared iterators
     def parallelize(self, loop_level: int, env_id: int = None):
         # Create a Parallelization action with the given loop level
         parallelization = Parallelization(params=[loop_level], env_id=env_id)
         # Use the Scheduler service to apply the Parallelization action to the schedule
-        return self.scheduler_service.apply_action(parallelization)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(parallelization))
 
     def reverse(self, loop_level: int, env_id: int = None):
         # Create a Reversal action with given loop level
         reversal = Reversal(params=[loop_level], env_id=env_id)
         # Use the Scheduler service to apply the Reversal action to the schedule
-        return self.scheduler_service.apply_action(reversal)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(reversal))
 
     def interchange(self,
                     loop_level1: int,
@@ -117,19 +121,22 @@ class TiramisuEnvAPI:
         interchange = Interchange(params=[loop_level1, loop_level2],
                                   env_id=env_id)
         # Use the Scheduler service to apply the Interchange action to the schedule
-        return self.scheduler_service.apply_action(interchange)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(interchange))
 
     def skew(self, loop_level1: int, loop_level2: int, env_id: int = None):
         # Create a skewing action for loop levels 1 and 2
         skewing = Skewing(params=[loop_level1, loop_level2], env_id=env_id)
         # Use the Scheduler to apply Skewing and return the speedup and legality
-        return self.scheduler_service.apply_action(skewing)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(skewing))
 
     def fuse(self, loop_level: int, env_id: int = None):
         # Create a Fusion action with given loop level 1
         fusion = Fusion(params=[loop_level], env_id=env_id)
         # Use the Scheduler service to apply the Fusion action to the schedule
-        return self.scheduler_service.apply_action(fusion)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(fusion))
 
     def tile2D(self,
                loop_level1: int,
@@ -141,7 +148,8 @@ class TiramisuEnvAPI:
         tiling2D = Tiling(params=[loop_level1, loop_level2, size_x, size_y],
                           env_id=env_id)
         # Use the Scheduler service to apply the Tiling action to the schedule
-        return self.scheduler_service.apply_action(tiling2D)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(tiling2D))
 
     def tile3D(self,
                loop_level1: int,
@@ -157,7 +165,8 @@ class TiramisuEnvAPI:
         ],
                           env_id=env_id)
         # Use the Scheduler service to apply the Tiling action to the schedule
-        return self.scheduler_service.apply_action(tiling3D)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(tiling3D))
 
     def unroll(self, unrolling_factor: int, env_id: int = None):
         # Create an Unrolling action with given unrolling factor , the loop level is not given
@@ -165,7 +174,24 @@ class TiramisuEnvAPI:
         # on the innermost loop level
         unrolling = Unrolling(params=[unrolling_factor], env_id=env_id)
         # Use the Scheduler service to apply the Unrolling action to the schedule
-        return self.scheduler_service.apply_action(unrolling)
+        return self.extend_embeddings(
+            self.scheduler_service.apply_action(unrolling))
+
+    def final_speedup(self):
+        speedup, sch_str = self.scheduler_service.get_current_speedup()
+        print("Final Schedule :", sch_str, "\nFinal Speedup :", speedup)
+
+    def extend_embeddings(self, tup):
+        l = []
+        for obj in [*tup]:
+            if (isinstance(obj, torch.Tensor)):
+                obj = torch.cat(
+                    (obj,
+                    torch.tensor(
+                        self.scheduler_service.schedule_object.loop_extents,
+                        dtype=torch.float32)))
+            l.append(obj)
+        return tuple(l)
 
     def save_legality_dataset(self, suffix: str = ""):
         self.dataset_service.store_offline_dataset(suffix=suffix)

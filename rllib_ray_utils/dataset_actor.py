@@ -62,7 +62,7 @@ class DatasetActor:
         if self.shuffle:
             random.shuffle(self.function_names)
         else : 
-            self.function_names = sorted(self.function_names)
+            self.function_names = self.function_names
 
         self.dataset_size = len(self.function_names)
 

@@ -14,12 +14,14 @@ class Schedule:
         self.branches = []
         self.schedule_dict = {}
         self.common_it = []
+        self.loop_extents = [0,0]
         self.__calculate_common_it()
         self.__init_schedule_dict_tags()
         self.__init_representation()
         self.__set_action_mask()
         self.__form_iterators_dict()
         self.__form_branches()
+        self.__calculate_loop_extents()
 
 
     def __calculate_common_it(self):
@@ -124,12 +126,17 @@ class Schedule:
             # Interchange
             self.repr.action_mask[19:26] = 1
 
-            # if (isinstance(action,Tiling)) : 
-            #     # Parallelization
-            #     self.repr.action_mask[0:2] = 1
+            if (isinstance(action,Tiling)) : 
+                # Parallelization
+                self.repr.action_mask[0:2] = 1
 
-            # elif (isinstance(action,Unrolling)):
-            #     # Parallelization
-            #     self.repr.action_mask[0:2] = 1
-            #     # Tiling
-            #     self.repr.action_mask[12:19] = 1
+            elif (isinstance(action,Unrolling)):
+                # Parallelization
+                self.repr.action_mask[0:2] = 1
+                # Tiling
+                self.repr.action_mask[12:19] = 1
+
+    def __calculate_loop_extents(self):
+        for i in range(min(2,len(self.common_it))):
+            it_dict = self.prog.annotations["iterators"][self.common_it[i]]
+            self.loop_extents[i] = it_dict["upper_bound"] -  it_dict["lower_bound"]

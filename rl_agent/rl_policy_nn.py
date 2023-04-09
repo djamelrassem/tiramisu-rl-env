@@ -12,7 +12,7 @@ class PolicyNN(TorchModelV2, nn.Module):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
                               model_config, name,**kwargs)
         nn.Module.__init__(self)
-
+    
         self.share_weights = model_config["vf_share_layers"]
 
         dropout = model_config["custom_model_config"]["dropout_rate"]
