@@ -14,7 +14,7 @@ dataset:
 
 ray:
     results: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results"
-    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/Separated-NN-Strict-beam-search-entropy_decay-batch1024-8previous-actions/PPO_TiramisuRlEnv_aef05_00000_0_2023-04-07_16-28-22/checkpoint_000995"
+    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/Separated-NN-Strict-beam-search-entropy_0-batch1024-8previous-actions-loopextents/PPO_TiramisuRlEnv_aff13_00000_0_2023-04-09_15-00-07/checkpoint_001000"
 
 experiment:
     name: "Separated-NN-Strict-beam-search-entropy_0-batch1024-8previous-actions-loopextents"
