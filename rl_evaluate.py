@@ -7,7 +7,7 @@ from ray.rllib.algorithms.algorithm_config import AlgorithmConfig
 from ray.rllib.policy.policy import Policy
 from rllib_ray_utils.dataset_actor import DatasetActor
 from config.config import Config
-from rl_agent.rl_policy_nn import PolicyNN
+from rl_agent.rl_policy_nn import PolicyLSTM
 from ray.rllib.algorithms.algorithm import Algorithm
 from ray.air.checkpoint import Checkpoint
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         dataset_format="PICKLE",
     )
 
-    ModelCatalog.register_custom_model("policy_nn", PolicyNN)
+    ModelCatalog.register_custom_model("policy_nn", PolicyLSTM)
 
     config = PPOConfig().framework(args.framework).environment(
         TiramisuRlEnv,
@@ -53,11 +53,14 @@ if __name__ == "__main__":
         "custom_model": "policy_nn",
         "vf_share_layers": Config.config.policy_network.vf_share_layers,
         "custom_model_config": {
-            "policy_hidden_layers":
-            Config.config.policy_network.policy_hidden_layers,
-            "vf_hidden_layers": Config.config.policy_network.vf_hidden_layers,
-            "dropout_rate": Config.config.policy_network.dropout_rate
-        }
+                            "fc_size":
+                            1024,
+                            "lstm_state_size":
+                            256,
+                            "num_layers":
+                            1,
+                        
+                        }
     }
 
     checkpoint = Checkpoint.from_directory(Config.config.ray.restore_checkpoint)

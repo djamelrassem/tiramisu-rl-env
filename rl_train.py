@@ -9,7 +9,7 @@ from ray.rllib.algorithms.callbacks import MultiCallbacks
 from env_api.tiramisu_api import TiramisuEnvAPI
 from config.config import Config
 
-from rl_agent.rl_policy_nn import PolicyNN
+from rl_agent.rl_policy_nn import PolicyLSTM, PolicyNN
 from rllib_ray_utils.dataset_actor import DatasetActor
 
 parser = argparse.ArgumentParser()
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         path_to_save_dataset=Config.config.dataset.save_path,
         dataset_format="PICKLE",
     )
-    ModelCatalog.register_custom_model("policy_nn", PolicyNN)
+    ModelCatalog.register_custom_model("policy_nn", PolicyLSTM)
 
     config = get_trainable_cls(args.run).get_default_config().environment(
         TiramisuRlEnv,
@@ -86,12 +86,12 @@ if __name__ == "__main__":
                         "vf_share_layers":
                         Config.config.policy_network.vf_share_layers,
                         "custom_model_config": {
-                            "policy_hidden_layers":
-                            Config.config.policy_network.policy_hidden_layers,
-                            "vf_hidden_layers":
-                            Config.config.policy_network.vf_hidden_layers,
-                            "dropout_rate":
-                            Config.config.policy_network.dropout_rate
+                            "fc_size":
+                            1024,
+                            "lstm_state_size":
+                            256,
+                            "num_layers":
+                            1,
                         }
                     },
                     train_batch_size=Config.config.experiment.train_batch_size

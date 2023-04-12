@@ -1,26 +1,119 @@
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
+from ray.rllib.models.modelv2 import ModelV2
 from ray.rllib.utils.framework import try_import_torch
-import numpy as np
-
+from ray.rllib.models.torch.recurrent_net import RecurrentNetwork as TorchRNN
+from ray.rllib.utils.annotations import override
+from ray.rllib.policy.rnn_sequencing import add_time_dimension
+import numpy as np 
 torch, nn = try_import_torch()
+
+class PolicyLSTM(TorchRNN, nn.Module):
+    def __init__(
+        self,
+        obs_space,
+        action_space,
+        num_outputs,
+        model_config,
+        name,
+        fc_size=64,
+        lstm_state_size=256,
+        num_layers = 1
+    ):
+        nn.Module.__init__(self)
+        super().__init__(obs_space, action_space, num_outputs, model_config, name)
+
+        self.obs_size = obs_space.original_space["embedding"].shape[0]
+        self.fc_size = fc_size
+        self.lstm_state_size = lstm_state_size
+        self.num_layers = num_layers
+
+        # Build the Module from fc + LSTM + 2xfc (action + value outs).
+        self.fc1 = nn.Linear(self.obs_size, self.fc_size)
+        self.lstm = nn.LSTM(self.fc_size, self.lstm_state_size, num_layers=num_layers ,batch_first=True)
+        self.action_branch = nn.Linear(self.lstm_state_size, num_outputs)
+        self.value_branch = nn.Linear(self.lstm_state_size, 1)
+        # Holds the current "base" output (before logits layer).
+        self._features = None
+
+    @override(ModelV2)
+    def get_initial_state(self):
+        # TODO: (sven): Get rid of `get_initial_state` once Trajectory
+        #  View API is supported across all of RLlib.
+        # Place hidden states on same device as model.
+        h = [
+            torch.tensor(np.zeros(self.lstm_state_size, np.float32)),
+            torch.tensor(np.zeros(self.lstm_state_size, np.float32)),
+        ] 
+        return h
+
+    @override(ModelV2)
+    def value_function(self):
+        assert self._features is not None, "must call forward() first"
+        return torch.reshape(self.value_branch(self._features), [-1])
+
+    @override(ModelV2)
+    def forward(
+        self,
+        input_dict,
+        state,
+        seq_lens,
+    ) :
+        """Adds time dimension to batch before sending inputs to forward_rnn().
+        
+        You should implement forward_rnn() in your subclass."""
+        flat_inputs = input_dict["obs"]["embedding"].float()
+        # flat_inputs = obs.reshape(obs.shape[0], -1) 
+        # Note that max_seq_len != input_dict.max_seq_len != seq_lens.max()
+        # as input_dict may have extra zero-padding beyond seq_lens.max().
+        # Use add_time_dimension to handle this
+        self.time_major = self.model_config.get("_time_major", False)
+        inputs = add_time_dimension(
+            flat_inputs,
+            seq_lens=seq_lens,
+            framework="torch",
+            time_major=False,
+        )
+        output, new_state = self.forward_rnn(inputs, state, seq_lens)
+        logits = torch.reshape(output, [-1, self.num_outputs])
+        logits = logits - (1_000_000 * input_dict["obs"]["actions_mask"])
+        return logits, new_state
+
+    @override(TorchRNN)
+    def forward_rnn(self, inputs, state, seq_lens):
+        """Feeds `inputs` (B x T x ..) through the Gru Unit.
+        Returns the resulting outputs as a sequence (B x T x ...).
+        Values are stored in self._cur_value in simple (B) shape (where B
+        contains both the B and T dims!).
+        Returns:
+            NN Outputs (B x T x ...) as sequence.
+            The state batches as a List of two items (c- and h-states).
+        """
+        x = nn.functional.relu(self.fc1(inputs))
+        self._features, [h, c] = self.lstm(
+            x, [torch.unsqueeze(state[0], 0),torch.unsqueeze(state[1], 0)]
+        )
+        action_out = self.action_branch(self._features)
+        return action_out, [torch.squeeze(h, 0), torch.squeeze(c, 0)]
+
 
 
 class PolicyNN(TorchModelV2, nn.Module):
     def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name,**kwargs):
+                 name,dropout_rate,policy_hidden_layers,vf_hidden_layers):
         
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
-                              model_config, name,**kwargs)
+                              model_config, name)
         nn.Module.__init__(self)
     
         self.share_weights = model_config["vf_share_layers"]
 
-        dropout = model_config["custom_model_config"]["dropout_rate"]
+        dropout = dropout_rate
+  
         
         input_size = obs_space.original_space["embedding"].shape[0]
 
         # Policy network
-        policy_hidden_sizes = model_config["custom_model_config"]["policy_hidden_layers"]
+        policy_hidden_sizes = policy_hidden_layers
         policy_output_size = num_outputs
 
         self.policy_layers = nn.ModuleList()
@@ -40,7 +133,7 @@ class PolicyNN(TorchModelV2, nn.Module):
         nn.init.xavier_uniform_(self.logits_layer.weight)
 
         # Value separate network
-        value_hidden_sizes = model_config["custom_model_config"]["vf_hidden_layers"]
+        value_hidden_sizes = vf_hidden_layers
         value_output_size = 1
 
         self.value_layers = nn.ModuleList()

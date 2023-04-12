@@ -182,16 +182,17 @@ class TiramisuEnvAPI:
         print("Final Schedule :", sch_str, "\nFinal Speedup :", speedup)
 
     def extend_embeddings(self, tup):
-        l = []
-        for obj in [*tup]:
-            if (isinstance(obj, torch.Tensor)):
-                obj = torch.cat(
-                    (obj,
-                    torch.tensor(
-                        self.scheduler_service.schedule_object.loop_extents,
-                        dtype=torch.float32)))
-            l.append(obj)
-        return tuple(l)
+        return tup
+        # l = []
+        # for obj in [*tup]:
+        #     if (isinstance(obj, torch.Tensor)):
+        #         obj = torch.cat(
+        #             (obj,
+        #             torch.tensor(
+        #                 self.scheduler_service.schedule_object.loop_extents,
+        #                 dtype=torch.float32)))
+        #     l.append(obj)
+        # return tuple(l)
 
     def save_legality_dataset(self, suffix: str = ""):
         self.dataset_service.store_offline_dataset(suffix=suffix)
