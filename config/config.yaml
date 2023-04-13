@@ -14,7 +14,7 @@ dataset:
 
 ray:
     results: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results"
-    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/LSTM-1layer-cell_256-1_action_embedded-0_entropycoeff-BS_constraints_strict/PPO_TiramisuRlEnv_f1c62_00000_0_2023-04-11_04-36-49/checkpoint_000460"
+    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/LSTM-1layer-cell_256-1_action_embedded-0_entropycoeff-BS_constraints_strict/PPO_TiramisuRlEnv_f1c62_00000_0_2023-04-11_04-36-49/checkpoint_001000"
 
 experiment:
     name: "LSTM-1layer-cell_256-1_action_embedded-0_entropycoeff-BS_constraints_strict"

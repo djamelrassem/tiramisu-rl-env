@@ -1,5 +1,5 @@
 import argparse, ray
-import random
+import numpy as np
 from ray.rllib.models import ModelCatalog
 from rl_agent.rl_env import TiramisuRlEnv
 from ray.rllib.algorithms.ppo import PPO, PPOConfig
@@ -53,17 +53,14 @@ if __name__ == "__main__":
         "custom_model": "policy_nn",
         "vf_share_layers": Config.config.policy_network.vf_share_layers,
         "custom_model_config": {
-                            "fc_size":
-                            1024,
-                            "lstm_state_size":
-                            256,
-                            "num_layers":
-                            1,
-                        
-                        }
+            "fc_size": 1024,
+            "lstm_state_size": 256,
+            "num_layers": 1,
+        }
     }
 
-    checkpoint = Checkpoint.from_directory(Config.config.ray.restore_checkpoint)
+    checkpoint = Checkpoint.from_directory(
+        Config.config.ray.restore_checkpoint)
     ppo_agent = PPO(AlgorithmConfig.from_dict(config))
     ppo_agent.restore(checkpoint_path=checkpoint)
 
@@ -71,14 +68,23 @@ if __name__ == "__main__":
         "config": Config.config,
         "dataset_actor": dataset_actor
     })
+    lstm_cell_size = config["model"]["custom_model_config"]["lstm_state_size"]
+    init_state = state = [
+        np.zeros([lstm_cell_size], np.float32) for _ in range(2)
+    ]
 
     for i in range(31):
         observation, _ = env.reset()
         episode_done = False
+        state = init_state
         while not episode_done:
-            action = ppo_agent.compute_single_action(observation=observation,
-                                                     explore=False,policy_id="default_policy")
+            action, state_out, _ = ppo_agent.compute_single_action(
+                observation=observation,
+                state=state,
+                explore=False,
+                policy_id="default_policy")
             observation, reward, episode_done, _, _ = env.step(action)
+            state = state_out
         else:
             print()
 

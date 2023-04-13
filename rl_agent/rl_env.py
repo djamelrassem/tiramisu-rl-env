@@ -135,7 +135,7 @@ class TiramisuRlEnv(gym.Env):
                 env_id=action)
         else:
             # Exit case
-            # self.tiramisu_api.final_speedup()
+            self.tiramisu_api.final_speedup()
             speedup, embedded_tensor, legality, actions_mask, legality_schedule = (
                 1, None, True, np.zeros(27), None)
             self.done = True
