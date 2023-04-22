@@ -15,9 +15,9 @@ class PolicyLSTM(TorchRNN, nn.Module):
         num_outputs,
         model_config,
         name,
-        fc_size=64,
-        lstm_state_size=256,
-        num_layers = 1
+        fc_size=1024,
+        lstm_state_size=512,
+        num_layers = 2
     ):
         nn.Module.__init__(self)
         super().__init__(obs_space, action_space, num_outputs, model_config, name)
@@ -41,8 +41,8 @@ class PolicyLSTM(TorchRNN, nn.Module):
         #  View API is supported across all of RLlib.
         # Place hidden states on same device as model.
         h = [
-            torch.tensor(np.zeros(self.lstm_state_size, np.float32)),
-            torch.tensor(np.zeros(self.lstm_state_size, np.float32)),
+            torch.tensor(np.zeros(self.lstm_state_size, np.float32)).squeeze(),
+            torch.tensor(np.zeros(self.lstm_state_size, np.float32)).squeeze(),
         ] 
         return h
 

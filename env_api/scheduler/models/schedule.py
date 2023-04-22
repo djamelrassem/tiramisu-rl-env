@@ -127,14 +127,16 @@ class Schedule:
             self.repr.action_mask[19:26] = 1
 
             if (isinstance(action,Tiling)) : 
-                # Parallelization
+                Parallelization
                 self.repr.action_mask[0:2] = 1
+                # self.repr.action_mask[:26] = 1
 
             elif (isinstance(action,Unrolling)):
                 # Parallelization
                 self.repr.action_mask[0:2] = 1
                 # Tiling
                 self.repr.action_mask[12:19] = 1
+                # self.repr.action_mask[:26] = 1
 
     def __calculate_loop_extents(self):
         for i in range(min(2,len(self.common_it))):

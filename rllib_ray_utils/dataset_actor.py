@@ -6,6 +6,8 @@ import random
 import numpy as np
 import ray
 
+from config.config import Config
+
 SAVING_FREQUENCY = 10000
 
 
@@ -36,6 +38,8 @@ class DatasetActor:
         self.dataset_name = dataset_path.split("/")[-1].split(".")[0]
         self.current_function = 0
         self.dataset_size = 0
+        self.cpps = {}
+        Config.init()
 
         if use_dataset:
             print(f"reading dataset from json at:{dataset_path}")
@@ -44,6 +48,8 @@ class DatasetActor:
                     with open(dataset_path, "rb") as f:
                         self.dataset = pickle.load(f)
                         self.function_names = list(self.dataset.keys())
+                    with open(Config.config.dataset.cpp_path, "rb") as file :
+                        self.cpps = pickle.load(file)
                 case DataSetFormat.JSON:
                     with open(dataset_path, "rb") as f:
                         self.dataset = json.load(f)
@@ -76,12 +82,12 @@ class DatasetActor:
             self.current_function += 1
 
         if self.use_dataset:
-            return function_name, self.dataset[function_name]
+            return function_name, self.dataset[function_name],self.cpps[function_name]
         else:
             return function_name, {
                 "annotations": None,
                 "schedules": {},
-            }
+            },self.cpps[function_name]
 
     def update_dataset(self, function_name, schedules):
         self.dataset[function_name]["schedules"] = schedules

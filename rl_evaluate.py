@@ -86,6 +86,7 @@ if __name__ == "__main__":
             observation, reward, episode_done, _, _ = env.step(action)
             state = state_out
         else:
+            env.tiramisu_api.final_speedup()
             print()
 
     ray.shutdown()

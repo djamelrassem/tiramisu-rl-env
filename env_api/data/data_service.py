@@ -6,14 +6,18 @@ from datetime import date
 class DataSetService:
     def __init__(self,
                  dataset_path='env_api/data/dataset/',
-                 offline_path=None):
+                 offline_path=None, 
+                 cpps_path= None):
         self.dataset_path = dataset_path
         self.offline_dataset = None
         self.offline_path = offline_path
+        self.cpps = {}
         if (offline_path != None):
             try :
                 with open(offline_path, "rb") as file:
                     self.offline_dataset = pickle.load(file)
+                with open(cpps_path, "rb")as file : 
+                    self.cpps = pickle.load(file)
             except FileNotFoundError:
                 print("[Error] : Offline dataset path is not valid => Reading from cpp files on disk")
 

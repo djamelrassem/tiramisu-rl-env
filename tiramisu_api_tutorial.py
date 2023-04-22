@@ -8,6 +8,7 @@ if __name__ == "__main__":
     start = time.time()
     # Init global config to run the Tiramisu env
     Config.init()
+    Config.config.dataset.is_benchmark = True
     tiramisu_api = TiramisuEnvAPI(local_dataset=True)
     # Get a list of the program names in the database
     programs = tiramisu_api.get_programs()
@@ -34,25 +35,25 @@ if __name__ == "__main__":
             # (speedup, embedding_tensor,
             #  legality,actions_mask,legality_schedule) = tiramisu_api.skew(loop_level1=1,loop_level2=2,env_id=2)
 
-            (speedup, embedding_tensor,
-                legality,actions_mask,legality_schedule) = tiramisu_api.unroll(unrolling_factor=16,env_id=4)
+            # (speedup, embedding_tensor,
+            #     legality,actions_mask,legality_schedule) = tiramisu_api.unroll(unrolling_factor=16,env_id=4)
             # (speedup, embedding_tensor,
             #  legality,actions_mask,legality_schedule) = tiramisu_api.skew(loop_level1=0,loop_level2=1,env_id=2)
-            # (speedup, embedding_tensor,
-            # legality,actions_mask,legality_schedule) = tiramisu_api.tile2D(
-            #     loop_level1=0 , loop_level2=1,
-            #     size_x=32,size_y=32,env_id=4
-            # )
-            # (speedup, embedding_tensor, legality, actions_mask,
-            #  legality_schedule) = tiramisu_api.parallelize(loop_level=2,
-            #                                                env_id=1)
+            (speedup, embedding_tensor,
+            legality,actions_mask,legality_schedule) = tiramisu_api.tile2D(
+                loop_level1=0 , loop_level2=1,
+                size_x=32,size_y=32,env_id=4
+            )
+            (speedup, embedding_tensor, legality, actions_mask,
+             legality_schedule) = tiramisu_api.parallelize(loop_level=0,
+                                                           env_id=1)
             # (speedup, embedding_tensor, legality, actions_mask,
             #  legality_schedule) = tiramisu_api.reverse(loop_level=0, env_id=7)
             # (speedup, embedding_tensor,
             # legality,actions_mask,legality_schedule) = tiramisu_api.tile3D(loop_level1=0 , loop_level2=1,loop_level3=2,
             #     size_x=128,size_y=128,size_z=128,env_id=17)
             print("Speedup : ", speedup, " ", "Legality : ", legality)
- 
+            print(actions_mask)
         print("Time : ", time.time() - start)
     except Exception as e:
         print("Traceback of the error : " + 60 * "-")

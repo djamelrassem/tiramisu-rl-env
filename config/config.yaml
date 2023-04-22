@@ -2,9 +2,11 @@ tiramisu:
     tiramisu_path: "/scratch/dl5133/Env/tiramisu" 
     env_type:  "model"
     tags_model_weights: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/env_api/scheduler/models/model_release_version.pt"
+    workspace: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/workspace/"
 
 dataset:
     path: '/scratch/dl5133/Dev/RL-Agent/rl_autoscheduler/utils/program_generator/Dataset_multi/'
+    cpp_path: '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets/cpps.pkl'
     offline : '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets/merged_valid_programs_40k.pkl'
     save_path: '/scratch/dl5133/Dev/RL-Agent/tiramisu-env/datasets'
     # When doing evaluation on the benchmark set the value to True
@@ -14,14 +16,15 @@ dataset:
 
 ray:
     results: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results"
-    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/LSTM-1layer-cell_256-1_action_embedded-0_entropycoeff-BS_constraints_strict/PPO_TiramisuRlEnv_f1c62_00000_0_2023-04-11_04-36-49/checkpoint_000810"
+    restore_checkpoint: "/scratch/dl5133/Dev/RL-Agent/tiramisu-env/ray_results/LSTM-2_layers-cell_512-1_action_embedded-0_entropycoeff-BS_constraints_strict/PPO_TiramisuRlEnv_4472b_00000_0_2023-04-19_06-31-20/checkpoint_000500"
 
 experiment:
-    name: "LSTM-1layer-cell_256-1_action_embedded-0_entropycoeff-BS_constraints_strict"
+    name: "test"
+    # name: "LSTM-2_layers-cell_512-1_action_embedded-0_entropycoeff-BS_constraints_strict"
     checkpoint_frequency: 10
     checkpoint_num_to_keep: 20
     # Stop parameters : The following 3 values are the values to stop the experiment if any of them is reached 
-    training_iteration: 1000
+    training_iteration: 500
     timesteps_total: 2000000
     episode_reward_mean: 2
     # Use this value to punish or tolerate illegal actions from being taken

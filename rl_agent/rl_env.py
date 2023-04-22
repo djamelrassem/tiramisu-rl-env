@@ -32,12 +32,12 @@ class TiramisuRlEnv(gym.Env):
             # There is some programs that has unsupported loop levels , acces matrices , ...
             # These programs are not supported yet so the embedded_tensor will be None
             # program = random.choice(self.tiramisu_api.programs)
-            self.program_name, data = ray.get(
+            self.program_name, data, code = ray.get(
                 self.dataset_actor.get_next_function.remote())
             # The shape of embedded_tensor : (180,)
             # Shape pf actions mask : (27,)
             embedded_tensor, actions_mask = self.tiramisu_api.set_program(
-                name=self.program_name, data=data)
+                name=self.program_name, data=data,code=code)
 
         self.state = {
             # Converting Tensor to numpy array
@@ -135,7 +135,7 @@ class TiramisuRlEnv(gym.Env):
                 env_id=action)
         else:
             # Exit case
-            self.tiramisu_api.final_speedup()
+            # self.tiramisu_api.final_speedup()
             speedup, embedded_tensor, legality, actions_mask, legality_schedule = (
                 1, None, True, np.zeros(27), None)
             self.done = True

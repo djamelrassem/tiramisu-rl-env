@@ -1,4 +1,5 @@
 import subprocess, re
+from config.config import Config
 from env_api.scheduler.models.action import Parallelization, Unrolling
 
 
@@ -6,7 +7,7 @@ class CompilingService():
     @classmethod
     def compile_legality(cls, schedule_object, optims_list: list):
         tiramisu_program = schedule_object.prog
-        output_path = tiramisu_program.func_folder + tiramisu_program.name + 'legal'
+        output_path = Config.config.tiramisu.workspace + tiramisu_program.name + 'legal'
         cpp_code = cls.get_legality_code(schedule_object=schedule_object,
                                          optims_list=optims_list)
         return cls.run_cpp_code(cpp_code=cpp_code, output_path=output_path)
@@ -44,7 +45,7 @@ class CompilingService():
     @classmethod
     def compile_annotations(cls, tiramisu_program):
         # TODO : add getting tree structure object from executing the file instead of building it
-        output_path = tiramisu_program.func_folder + tiramisu_program.name + 'annot'
+        output_path = Config.config.tiramisu.workspace + tiramisu_program.name + 'annot'
         # Add code to the original file to get json annotations
         get_json_lines = '''
             auto ast = tiramisu::auto_scheduler::syntax_tree(tiramisu::global::get_implicit_function());
@@ -138,7 +139,7 @@ class CompilingService():
         
             """
         solver_code = legality_cpp_code.replace(to_replace, solver_lines)
-        output_path = schedule_object.prog.func_folder + schedule_object.prog.name + 'skew_solver'
+        output_path = Config.config.tiramisu.workspace + schedule_object.prog.name + 'skew_solver'
         result_str = cls.run_cpp_code(cpp_code=solver_code,
                                       output_path=output_path)
         if not result_str:

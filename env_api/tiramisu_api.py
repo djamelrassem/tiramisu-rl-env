@@ -26,11 +26,9 @@ class TiramisuEnvAPI:
         # - copy_path : Contains the path to store the chosen programs that are going to be optimized
         # This step of initializing the database service must be executed first in the init of tiramisu api
         self.dataset_service = DataSetService(
-            dataset_path=Config.config.dataset.benchmark_cpp_files if
-            Config.config.dataset.is_benchmark else Config.config.dataset.path,
-            offline_path=Config.config.dataset.benchmark_path
-            if Config.config.dataset.is_benchmark else
-            Config.config.dataset.offline if local_dataset else None)
+            dataset_path=Config.config.dataset.path,
+            offline_path=Config.config.dataset.offline if local_dataset else None,
+            cpps_path=Config.config.dataset.cpp_path)
         self.programs = None
         # The list of program names of the dataset
         self.programs = self.get_programs()
@@ -47,19 +45,21 @@ class TiramisuEnvAPI:
                 self.programs = os.listdir(self.dataset_service.dataset_path)
         return sorted(self.programs)
 
-    def set_program(self, name: str, data: dict = None):
+    def set_program(self, name: str, data: dict = None, code : str= None):
         print("Function : ", name)
         if data:
             tiramisu_prog = self.tiramisu_service.fetch_prog_offline(name=name,
-                                                                     data=data)
+                                                                     data=data,
+                                                                     code=code)
         else:
             # Get the file path for the program with the given name
             file_path, exist_offline = self.dataset_service.get_file_path(name)
             # if exist_offline is True , then we can fetch the data from the offline dataset if the program name is saved there
             if (exist_offline):
+                code= self.dataset_service.cpps[name]
                 data = self.dataset_service.get_offline_prog_data(name=name)
                 tiramisu_prog = self.tiramisu_service.fetch_prog_offline(
-                    name=name, data=data)
+                    name=name, data=data,code=code)
             else:
                 # Load the Tiramisu model from the file
                 try:

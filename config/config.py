@@ -8,11 +8,13 @@ class TiramisuConfig:
     tiramisu_path: str = ""
     env_type: Literal["model", "cpu"] = "model"
     tags_model_weights: str = ""
+    workspace: str = ""
 
 
 @dataclass
 class DatasetConfig:
     path: str = ""
+    cpp_path: str = ""
     offline: str = ""
     save_path: str = ""
     is_benchmark: bool = False
