@@ -46,7 +46,7 @@ class TiramisuEnvAPI:
         return sorted(self.programs)
 
     def set_program(self, name: str, data: dict = None, code : str= None):
-        print("Function : ", name)
+        # print("Function : ", name)
         if data:
             tiramisu_prog = self.tiramisu_service.fetch_prog_offline(name=name,
                                                                      data=data,
